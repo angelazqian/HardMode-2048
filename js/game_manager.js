@@ -93,6 +93,26 @@ GameManager.prototype.addEasyTile = function () {
         avail.push(cell);
       }
     }
+    if (!this.tileMatchesAvailable() && avail.length == 1) {
+      //possible game over condition, if no surrounding 2's then spawn a 4
+      //if the 4 won't save you, use a 2, you're dead anyway
+      var cell = avail[0];
+      var twos = 0;
+      var fours = 0;
+      for (var i = 0; i < 4; i++) {
+        var dir = this.getVector(i);
+        var cell2 = {x: cell.x + dir.x, y: cell.y + dir.y};
+        if (this.grid.withinBounds(cell2)) {
+          var tile = this.grid.cellContent(cell2);
+          if (tile.value == 2)
+            twos++;
+          else if (tile.value == 4)
+            fours++;
+        }
+      }
+      if (!twos && fours)
+        value = 4;
+    }
 
     var bestval = 131073; //2^17+1, guaranteed to be biggest
     var bestchoices = [];
