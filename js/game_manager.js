@@ -93,7 +93,7 @@ GameManager.prototype.addEasyTile = function () {
         avail.push(cell);
       }
     }
-    if (this.grid.cellsAvailable==1 && !this.tileMatchesAvailable()) {
+    if (this.grid.availableCells().length ==1 && !this.tileMatchesAvailable()) {
       //possible game over condition, if no surrounding 2's then spawn a 4
       //if the 4 won't save you, use a 2, you're dead anyway
       var cell = avail[0];
