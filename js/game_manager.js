@@ -93,7 +93,7 @@ GameManager.prototype.addEasyTile = function () {
         avail.push(cell);
       }
     }
-    if (!this.tileMatchesAvailable() && avail.length == 1) {
+    if (this.grid.cellsAvailable==1 && !this.tileMatchesAvailable()) {
       //possible game over condition, if no surrounding 2's then spawn a 4
       //if the 4 won't save you, use a 2, you're dead anyway
       var cell = avail[0];
@@ -312,30 +312,33 @@ GameManager.prototype.movesAvailable = function () {
 
 // Check for available matches between tiles (more expensive check)
 GameManager.prototype.tileMatchesAvailable = function () {
-  var self = this;
-
-  var tile;
-
   for (var x = 0; x < this.size; x++) {
     for (var y = 0; y < this.size; y++) {
-      tile = this.grid.cellContent({ x: x, y: y });
+      var tile = this.grid.cellContent({ x: x, y: y });
 
       if (tile) {
+        // Check all four directions
         for (var direction = 0; direction < 4; direction++) {
-          var vector = self.getVector(direction);
-          var cell   = { x: x + vector.x, y: y + vector.y };
+          var vector = this.getVector(direction);
+          var cell = { x: x + vector.x, y: y + vector.y };
 
-          var other  = self.grid.cellContent(cell);
-
-          if (other && other.value === tile.value) {
-            return true; // These two tiles can be merged
+          // Traverse along the direction to find mergeable tiles
+          while (this.grid.withinBounds(cell)) {
+            var other = this.grid.cellContent(cell);
+            if (other) {
+              if (other.value === tile.value) {
+                return true; // Merge is possible
+              }
+              break; // Stop if a non-mergeable tile is found
+            }
+            cell.x += vector.x;
+            cell.y += vector.y;
           }
         }
       }
     }
   }
-
-  return false;
+  return false; // No merges available
 };
 
 GameManager.prototype.positionsEqual = function (first, second) {
