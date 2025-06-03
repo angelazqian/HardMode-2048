@@ -3,6 +3,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager   = new InputManager;
   this.storageManager = new StorageManager;
   this.actuator       = new Actuator;
+  this.lastDir        = 0; //0: up, 1: right, 2: down, 3: left
 
   this.startTiles     = 2;
 
@@ -65,12 +66,61 @@ GameManager.prototype.addStartTiles = function () {
   }
 };
 
-// Adds a tile in a random position
+// Adds a tile in optimal position
 GameManager.prototype.addEasyTile = function () {
   if (this.grid.cellsAvailable()) {
-    var value = Math.random() < 0.9 ? 2 : 4;
-    var tile = new Tile(this.grid.randomAvailableCell(), value);
+    //TODO:
+    //current strat: always add a tile w value 2, but add tile of 4 is 2 will result in game over
+    //this makes gameplay slower, but yields a higher score
+    //add tiles to the border opposite of the last move, to avoid rectangle formation
+    //add in same col/row as smallest tile for endgame strats
 
+    var value = 2;
+    var vector = this.getVector(this.lastDir);
+
+    var avail = [];  //only look at opposite border, guaranteed to have *something* free
+    for (var i = 0; i < this.size; i++) {
+      var cell = {x: i, y: i};
+      if (this.lastDir == 0)
+        cell.y = this.size - 1;
+      else if (this.lastDir == 1)
+        cell.x = 0;
+      else if (this.lastDir == 2)
+        cell.y = 0;
+      else if (this.lastDir == 3)
+        cell.x = this.size - 1;
+      if (this.grid.cellAvailable(cell)) {
+        avail.push(cell);
+      }
+    }
+
+    var bestval = 131073; //2^17+1, guaranteed to be biggest
+    var bestchoices = [];
+    for (var i = 0; i < avail.length; i++) {
+      var cell = avail[i];
+      for (var j = 0; j < this.size; j++) {
+        var cell2 = {x: cell.x, y: cell.y};
+        cell2.x += vector.x * j;
+        cell2.y += vector.y * j;
+        if (this.grid.cellContent(cell2)) {
+          if (this.grid.cellContent(cell2).value < bestval) {
+            bestval = this.grid.cellContent(cell2).value;
+            bestchoices = [cell];
+          } else if (this.grid.cellContent(cell2).value == bestval) {
+            bestchoices.push(cell);
+          }
+          break;
+        }
+        if (j == this.size - 1) {
+          if (bestval != 0)
+            bestchoices = [];
+          bestval = 0;
+          bestchoices.push(cell);
+        }
+      }
+    }
+    var cellindex = Math.floor(Math.random() * bestchoices.length);
+    var tile = new Tile(bestchoices[cellindex], value);
     this.grid.insertTile(tile);
   }
 };
@@ -180,6 +230,7 @@ GameManager.prototype.move = function (direction) {
   });
 
   if (moved) {
+    this.lastDir = direction; // Save the last move direction
     this.addEasyTile();
 
     if (!this.movesAvailable()) {
