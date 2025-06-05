@@ -1,2 +1,2 @@
 # Easy Mode 2048
-A fork of [2048](https://github.com/gabrielecirulli/2048), with a modified tile generating algroithm. Instead of generating random tiles, it calculates the optimal tile spawn location and value. Theoretically this should allow you to easily reach 131072 with enough dedication. [Have fun!](https://angelazqian.github.io/EasyMode-2048/) :)
+A fork of [2048](https://github.com/gabrielecirulli/2048), with a modified tile generating algorithm. Instead of generating random tiles, it calculates the optimal tile spawn location and value. Theoretically this should allow you to easily reach 131072 with enough dedication. [Have fun!](https://angelazqian.github.io/EasyMode-2048/) :)
