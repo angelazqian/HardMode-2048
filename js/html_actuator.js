@@ -3,7 +3,7 @@ function HTMLActuator() {
   this.scoreContainer   = document.querySelector(".score-container");
   this.bestContainer    = document.querySelector(".best-container");
   this.messageContainer = document.querySelector(".game-message");
-
+  this.targetTile       = 2048; // Default target tile for winning
   this.score = 0;
 }
 
@@ -23,6 +23,7 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
 
     self.updateScore(metadata.score);
     self.updateBestScore(metadata.bestScore);
+    self.targetTile = metadata.targetTile;
 
     if (metadata.terminated) {
       if (metadata.over) {
@@ -130,6 +131,11 @@ HTMLActuator.prototype.message = function (won) {
 
   this.messageContainer.classList.add(type);
   this.messageContainer.getElementsByTagName("p")[0].textContent = message;
+  if (won) {
+    var keepPlayingButton = this.messageContainer.querySelector(".keep-playing-button");
+    keepPlayingButton.textContent = `Play for ${this.targetTile}!`;
+    keepPlayingButton.style.display = "inline-block";
+  }
 };
 
 HTMLActuator.prototype.clearMessage = function () {

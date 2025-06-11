@@ -4,7 +4,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.storageManager = new StorageManager;
   this.actuator       = new Actuator;
   this.lastDir        = 0; //0: up, 1: right, 2: down, 3: left
-
+  this.targetTile     = 2048; // next goal tile
   this.startTiles     = 2;
 
   this.inputManager.on("move", this.move.bind(this));
@@ -23,7 +23,8 @@ GameManager.prototype.restart = function () {
 
 // Keep playing after winning (allows going over 2048)
 GameManager.prototype.keepPlaying = function () {
-  this.keepPlaying = true;
+  this.keepPlaying = false;
+  this.won = false; // Reset the won state
   this.actuator.continueGame(); // Clear the game won/lost message
 };
 
@@ -163,7 +164,8 @@ GameManager.prototype.actuate = function () {
     over:       this.over,
     won:        this.won,
     bestScore:  this.storageManager.getBestScore(),
-    terminated: this.isGameTerminated()
+    terminated: this.isGameTerminated(),
+    targetTile: this.targetTile
   });
 
 };
@@ -237,7 +239,12 @@ GameManager.prototype.move = function (direction) {
           self.score += merged.value;
 
           // The mighty 2048 tile
-          if (merged.value === 2048) self.won = true;
+          if (merged.value >= self.targetTile) {
+            self.won = true;
+            self.targetTile = merged.value * 2; // Next target tile
+          } else {
+            self.won = false;
+          }
         } else {
           self.moveTile(tile, positions.farthest);
         }
