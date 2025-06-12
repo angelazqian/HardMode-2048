@@ -3,7 +3,7 @@ function HTMLActuator() {
   this.scoreContainer   = document.querySelector(".score-container");
   this.bestContainer    = document.querySelector(".best-container");
   this.messageContainer = document.querySelector(".game-message");
-  this.targetTile       = 2048; // Default target tile for winning
+  this.targetTile       = document.querySelector(".target-tile");
   this.score = 0;
 }
 

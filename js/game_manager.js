@@ -4,7 +4,6 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.storageManager = new StorageManager;
   this.actuator       = new Actuator;
   this.lastDir        = 0; //0: up, 1: right, 2: down, 3: left
-  this.targetTile     = 2048; // next goal tile
   this.startTiles     = 2;
 
   this.inputManager.on("move", this.move.bind(this));
@@ -41,6 +40,8 @@ GameManager.prototype.setup = function () {
   if (previousState) {
     this.grid        = new Grid(previousState.grid.size,
                                 previousState.grid.cells); // Reload grid
+    
+    this.targetTile = Math.max(this.grid ? this.grid.largestTile()*2 : 0, 2048);
     this.score       = previousState.score;
     this.over        = previousState.over;
     this.won         = previousState.won;
@@ -48,6 +49,7 @@ GameManager.prototype.setup = function () {
   } else {
     this.grid        = new Grid(this.size);
     this.score       = 0;
+    this.targetTile = 2048; // Default target tile
     this.over        = false;
     this.won         = false;
     this.keepPlaying = false;
@@ -62,9 +64,13 @@ GameManager.prototype.setup = function () {
 
 // Set up the initial tiles to start the game with
 GameManager.prototype.addStartTiles = function () {
-  for (var i = 0; i < this.startTiles; i++) {
-    this.addEasyTile();
-  }
+  // for (var i = 0; i < this.startTiles; i++) {
+  //   this.addEasyTile();
+  // }
+  this.grid.insertTile(new Tile({x: 0, y: 0}, 1024));
+  this.grid.insertTile(new Tile({x: 1, y: 0}, 1024));
+  this.grid.insertTile(new Tile({x: 2, y: 2}, 1024));
+  this.grid.insertTile(new Tile({x: 3, y: 3}, 1024));
 };
 
 // Adds a tile in optimal position

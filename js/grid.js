@@ -18,6 +18,16 @@ Grid.prototype.empty = function () {
   return cells;
 };
 
+Grid.prototype.largestTile = function () {
+  let ans = 0;
+  this.eachCell(function (x, y, tile) {
+    if (tile && (tile.value > ans)) {
+      ans = tile.value;
+    }
+  });
+  return ans;
+};
+
 Grid.prototype.fromState = function (state) {
   var cells = [];
 
