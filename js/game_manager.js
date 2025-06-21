@@ -67,6 +67,22 @@ GameManager.prototype.addStartTiles = function () {
   for (var i = 0; i < this.startTiles; i++) {
     this.addEasyTile();
   }
+  // this.grid.insertTile(new Tile({x: 3, y: 0}, 65536));
+  // this.grid.insertTile(new Tile({x: 2, y: 0}, 32768));
+  // this.grid.insertTile(new Tile({x: 1, y: 0}, 16384));
+  // this.grid.insertTile(new Tile({x: 0, y: 0}, 8192));
+
+  // this.grid.insertTile(new Tile({x: 0, y: 1}, 4096));
+  // this.grid.insertTile(new Tile({x: 1, y: 1}, 2048));
+  // this.grid.insertTile(new Tile({x: 2, y: 1}, 1024));
+  // this.grid.insertTile(new Tile({x: 3, y: 1}, 512));
+
+  // this.grid.insertTile(new Tile({x: 3, y: 2}, 256));
+  // this.grid.insertTile(new Tile({x: 2, y: 2}, 128));
+  // this.grid.insertTile(new Tile({x: 1, y: 2}, 64));
+  // this.grid.insertTile(new Tile({x: 0, y: 2}, 32));
+
+  // this.grid.insertTile(new Tile({x: 0, y: 3}, 2));
 };
 
 // Adds a tile in optimal position
@@ -244,8 +260,6 @@ GameManager.prototype.move = function (direction) {
           if (merged.value >= self.targetTile) {
             self.won = true;
             self.targetTile = merged.value * 2; // Next target tile
-          } else {
-            self.won = false;
           }
         } else {
           self.moveTile(tile, positions.farthest);

@@ -58,7 +58,8 @@ HTMLActuator.prototype.addTile = function (tile) {
   // We can't use classlist because it somehow glitches when replacing classes
   var classes = ["tile", "tile-" + tile.value, positionClass];
 
-  if (tile.value > 2048) classes.push("tile-super");
+  if (tile.value > 2048 && tile.value != 131072) classes.push("tile-super");
+  if (tile.value === 131072) classes.push("tile-131072");
 
   this.applyClasses(wrapper, classes);
 
@@ -128,13 +129,19 @@ HTMLActuator.prototype.updateBestScore = function (bestScore) {
 HTMLActuator.prototype.message = function (won) {
   var type    = won ? "game-won" : "game-over";
   var message = won ? "You win!" : "Game over!";
-
   this.messageContainer.classList.add(type);
-  this.messageContainer.getElementsByTagName("p")[0].textContent = message;
+  var messageParagraph = this.messageContainer.getElementsByTagName("p")[0];
+  messageParagraph.textContent = message;
+
   if (won) {
     var keepPlayingButton = this.messageContainer.querySelector(".keep-playing-button");
     keepPlayingButton.textContent = `Play for ${this.targetTile}!`;
     keepPlayingButton.style.display = "inline-block";
+
+    if (this.targetTile > 131072) {
+      keepPlayingButton.textContent = "Play for fun!";
+      this.messageContainer.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    }
   }
 };
 
