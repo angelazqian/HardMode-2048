@@ -132,7 +132,9 @@ HTMLActuator.prototype.message = function (won) {
   this.messageContainer.classList.add(type);
   var messageParagraph = this.messageContainer.getElementsByTagName("p")[0];
   messageParagraph.textContent = message;
-
+  if (!won) {
+    this.messageContainer.querySelector(".keep-playing-button").style.display = "none";
+  }
   if (won) {
     var keepPlayingButton = this.messageContainer.querySelector(".keep-playing-button");
     keepPlayingButton.textContent = `Play for ${this.targetTile}!`;
