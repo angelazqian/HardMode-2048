@@ -65,7 +65,7 @@ GameManager.prototype.setup = function () {
 // Set up the initial tiles to start the game with
 GameManager.prototype.addStartTiles = function () {
   for (var i = 0; i < this.startTiles; i++) {
-    this.addEasyTile();
+    this.addHardTile();
   }
   // this.grid.insertTile(new Tile({x: 3, y: 0}, 65536));
   // this.grid.insertTile(new Tile({x: 2, y: 0}, 32768));
@@ -86,13 +86,12 @@ GameManager.prototype.addStartTiles = function () {
 };
 
 // Adds a tile in optimal position
-GameManager.prototype.addEasyTile = function () {
+GameManager.prototype.addHardTile = function () {
   if (this.grid.cellsAvailable()) {
     //TODO:
-    //current strat: always add a tile w value 2, but add tile of 4 is 2 will result in game over
-    //this makes gameplay slower, but yields a higher score
-    //add tiles to the border opposite of the last move, to avoid rectangle formation
-    //add in same col/row as smallest tile for endgame strats
+    //current strat: always add a tile w value 2, but if adjacent tiles have 2, add 4 instead, but if adjacent tiles have 4, add 2
+    //add tiles to along edge of the opposite of the last move, make rectangle formation as often as possible
+    //if rectangle not possible, place new tile against biggest file
 
     var value = 2;
     var vector = this.getVector(this.lastDir);
@@ -274,7 +273,7 @@ GameManager.prototype.move = function (direction) {
 
   if (moved) {
     this.lastDir = direction; // Save the last move direction
-    this.addEasyTile();
+    this.addHardTile();
 
     if (!this.movesAvailable()) {
       this.over = true; // Game over!

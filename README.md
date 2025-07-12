@@ -1,2 +1,2 @@
-# Easy Mode 2048
-A fork of [2048](https://github.com/gabrielecirulli/2048), with a modified tile generating algorithm. Instead of generating random tiles, it calculates the optimal tile spawn location and value. Theoretically this should allow you to easily reach 131072 with enough dedication. [Have fun!](https://angelazqian.github.io/EasyMode-2048/) :)
+# Hard Mode 2048
+A fork of [2048](https://github.com/gabrielecirulli/2048), with a modified tile generating algorithm. Instead of generating random tiles, it calculates the worst possible tile spawn location and value. If you somehow reach 2048 please send me a screen recording because I will be *very* impressed. [Have fun!](https://angelazqian.github.io/HardMode-2048/) :)
