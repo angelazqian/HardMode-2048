@@ -96,8 +96,8 @@ GameManager.prototype.addHardTile = function () {
   if (this.grid.cellsAvailable()) {
     //TODO:
     //current strat: always add a tile w value 2, but if adjacent tiles have 2, add 4 instead, but if adjacent tiles have 4, add 2
-    //add tiles to along edge of the opposite of the last move, make rectangle formation as often as possible
-    //if rectangle not possible, place new tile against biggest file
+    //add tiles to along big tiles to avoid corner strat, make rectangle formation as often as possible
+    //if rectangle not possible, place new tile against biggest tile, with bias towards last dir
     //make checkerboarded 2424 board when possible
 
     var value = 2;
@@ -150,13 +150,13 @@ GameManager.prototype.addHardTile = function () {
           if (!fours) {
             this.grid.insertTile(new Tile(off[0], 4));
             return;
-          }
-          //if we got here, proceed as normal
+          } //if we got here, proceed as normal
         }
       }
     }
 
-    var bestval = 0; //look for biggest tile in the direction of the last move
+    avail = this.grid.availableCells()
+    var bestval = 0; //look for biggest tile neighboring available cell, with a bias from last dir
     var bestchoices = [];
     var merger = true;  //true if must merge into neighbor, false if not
     for (var i = 0; i < avail.length; i++) {  
@@ -164,9 +164,20 @@ GameManager.prototype.addHardTile = function () {
       var tile = new Tile(cell, 2);
       var twos = 0;
       var fours = 0;
+      var maxval = 0;
       for (var j = 0; j < 4; j++) {
         var dir = this.getVector(j);
         var cell2 = {x: cell.x + dir.x, y: cell.y + dir.y};
+        if (this.grid.withinBounds(cell2)) {  //bet biggest immediate neighbor
+          var other = this.grid.cellContent(cell2);
+          if (other && other.value > maxval) {
+            maxval = other.value;
+          }
+        }
+        while (this.grid.withinBounds(cell2) && this.grid.cellAvailable(cell2)) { //ignore empty tiles, check if mergeable
+          cell2.x += dir.x;
+          cell2.y += dir.y;
+        }
         if (this.grid.withinBounds(cell2)) {
           var other = this.grid.cellContent(cell2);
           if (other && other.value == 2)
@@ -175,37 +186,53 @@ GameManager.prototype.addHardTile = function () {
             fours++;
         }
       }
-      var neighbor = 0;
-      var cell2 = {x: cell.x + vector.x, y: cell.y + vector.y};
-      if (this.grid.withinBounds(cell2) && this.grid.cellContent(cell2)) {
-        neighbor = this.grid.cellContent(cell2).value;
-      }
       if (!fours)
         tile = new Tile(cell, 4);
       if (!twos)
         tile = new Tile(cell, 2);
 
       if (!merger && (!twos || !fours)) { //previously couldn't merge, still can't
-        if (neighbor > bestval) {
-          bestval = neighbor;
+        if (maxval > bestval) {
+          bestval = maxval;
           bestchoices = [tile];
-        } else if (neighbor == bestval) {
+        } else if (maxval == bestval) {
           bestchoices.push(tile);
         }
       }
       else if (merger && (!twos || !fours)) {  //previously could merge, but now can't
         merger = false;
-        bestval = neighbor;
+        bestval = maxval;
         bestchoices = [tile];
       }
       else if (merger && (twos && fours)) {  //previously could merge, still can
-        if (neighbor > bestval) {
-          bestval = neighbor;
+        if (maxval > bestval) {
+          bestval = maxval;
           bestchoices = [tile];
-        } else if (neighbor == bestval) {
+        } else if (maxval == bestval) {
           bestchoices.push(tile);
         }
       }    //if previously couldn't merge, but now can, do nothing
+    }
+    console.log(bestval);
+    if (bestchoices.length > 1) {
+      avail = [];   //bias towards last direction
+      bestval = 0;
+      for (var i = 0; i < bestchoices.length; i++) {
+        var cell = bestchoices[i];
+        var cell2 = {x: cell.x + vector.x, y: cell.y + vector.y};
+        if (this.grid.withinBounds(cell2) && this.grid.cellContent(cell2)) {
+          if (this.grid.cellContent(cell2).value > bestval) {
+            bestval = this.grid.cellContent(cell2).value;
+            avail = [bestchoices[i]];
+          }
+          else if (this.grid.cellContent(cell2).value == bestval) {
+            avail.push(bestchoices[i]);
+          }
+        }
+      }
+      if (avail.length > 0) {
+        bestchoices = avail; //use the ones with best neighbor
+      }
     }
     var cellindex = Math.floor(Math.random() * bestchoices.length);
     this.grid.insertTile(bestchoices[cellindex]);
