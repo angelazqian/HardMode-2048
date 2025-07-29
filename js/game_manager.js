@@ -94,14 +94,30 @@ function mostCommon(arr) {
 // Adds a tile in worst position
 GameManager.prototype.addHardTile = function () {
   if (this.grid.cellsAvailable()) {
-    //TODO:
-    //current strat: always add a tile w value 2, but if adjacent tiles have 2, add 4 instead, but if adjacent tiles have 4, add 2
-    //add tiles to along big tiles to avoid corner strat, make rectangle formation as often as possible
-    //if rectangle not possible, place new tile against biggest tile, with bias towards last dir
+    //create brick as often as possible, if not, add tile next to biggest tile available
+    //when adding tile next to biggest, put priority on unmergeable tiles
+    //if tie, put priority on last direction
     //make checkerboarded 2424 board when possible
 
     var value = 2;
     var vector = this.getVector(this.lastDir);
+    if (this.grid.availableCells().length == 2 && this.grid.largestTile() == 4) {
+      for (var i = 0; i < 4; i++) {
+        var cell = {x: 3*Math.floor(i/2), y: 3*(i%2)};  //spawn in corner
+        console.log(cell);
+        if (this.grid.cellAvailable(cell)) {
+          for (var j = 0; j < 4; j++) {
+            var dir = this.getVector(j);
+            var cell2 = {x: cell.x + dir.x, y: cell.y + dir.y};
+            if (this.grid.withinBounds(cell2) && this.grid.cellContent(cell2)) {
+              console.log(cell2);
+              this.grid.insertTile(new Tile(cell, this.grid.cellContent(cell2).value));
+              return;
+            }
+          }
+        }
+      }
+    }
 
     var avail = [];  //only look at edge along last direction, get available cells
     for (var i = 0; i < this.size; i++) {
@@ -213,7 +229,6 @@ GameManager.prototype.addHardTile = function () {
         }
       }    //if previously couldn't merge, but now can, do nothing
     }
-    console.log(bestval);
     if (bestchoices.length > 1) {
       avail = [];   //bias towards last direction
       bestval = 0;
